@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;transition:background 0.4s,border-color 0.4s;border-bottom:0.5px solid transparent}
 nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
-.nav-logo{font-family:var(--display);font-size:20px;font-weight:400;letter-spacing:0.04em;color:var(--text);cursor:pointer}
+.nav-logo{font-family:'Archivo','Arial Black',sans-serif;font-size:21px;font-weight:700;letter-spacing:0.02em;color:var(--text);cursor:pointer;line-height:1.1;text-transform:uppercase}
 .nav-logo span{color:var(--accent)}
 .nav-links{display:flex;gap:2.5rem;align-items:center}
 .nav-links a{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted2);cursor:pointer;transition:color 0.2s;text-decoration:none;font-family:var(--sans);font-weight:400}
@@ -44,11 +44,11 @@ nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
 /* ===== HOME PAGE ===== */
 .hero{display:flex;flex-direction:column;padding-top:60px}
 .hero-tagline{padding:2.5rem 2rem 0;text-align:center}
-.hero-tagline-main{font-family:var(--display);font-size:clamp(22px,3vw,42px);font-weight:300;color:var(--text);letter-spacing:-0.01em;line-height:1.1}
-.hero-tagline-sub{font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-top:0.75rem}
-.hero-divider{width:100%;height:0.5px;background:rgba(255,255,255,0.15);margin-top:60px}
+.hero-tagline-main{font-family:'Archivo','Arial Black',sans-serif;font-size:clamp(28px,4vw,64px);font-weight:700;color:#ffffff;letter-spacing:-0.02em;line-height:1.05}
+.hero-tagline-sub{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#c0392b;margin-top:1rem;font-weight:500}
+.hero-divider{width:calc(100% - 4rem);margin:60px auto 0;height:2px;background:rgba(255,255,255,0.85);border-radius:1px}
 .hero-frame-wrap{width:100%;padding:1.5rem 2rem 0}
-.hero-frame{width:100%;aspect-ratio:2.39/1;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5);border-radius:20px}
+.hero-frame{width:100%;aspect-ratio:2.39/1;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5);border-radius:10px}
 .hero-frame img{width:100%;height:100%;object-fit:cover;display:block}
 .hero-bottom{display:flex;align-items:flex-start;justify-content:space-between;padding:2.5rem 2rem 3rem;gap:2rem}
 .hero-bottom-left{flex:1;max-width:600px}
@@ -60,7 +60,7 @@ nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
 .hero-reel-hint::before{content:'';width:0.5px;height:60px;background:var(--muted)}
 .hero-eyebrow{font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:16px}
 .hero-eyebrow::before{content:'';width:32px;height:0.5px;background:var(--accent)}
-.hero-title{font-family:var(--display);font-size:clamp(32px,4vw,60px);font-weight:300;line-height:1;letter-spacing:-0.01em;margin-bottom:1.25rem;color:var(--text)}
+.hero-title{font-family:'Archivo','Arial Black',sans-serif;font-size:clamp(32px,4vw,60px);font-weight:700;line-height:1;letter-spacing:-0.02em;margin-bottom:1.25rem;color:var(--text)}
 .hero-title em{font-style:italic;color:var(--accent)}
 .hero-sub{font-size:13px;color:var(--muted2);line-height:1.8;max-width:440px;margin-bottom:1.75rem;font-weight:300}
 .hero-cta{display:flex;gap:12px;align-items:center}
@@ -257,7 +257,7 @@ footer .footer-links a:hover{color:var(--accent)}
 <body>
 
 <nav id="main-nav">
-  <div class="nav-logo" onclick="showPage('home')">Rob <span>Pearson</span></div>
+  <div class="nav-logo" onclick="showPage('home')">Rob<br><span>Pearson</span></div>
   <div class="nav-links">
     <a onclick="showPage('home')" class="active" id="nav-home">Work</a>
     <a onclick="showPage('films')" id="nav-films">Films</a>
