@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;transition:background 0.4s,border-color 0.4s;border-bottom:0.5px solid transparent}
 nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
-.nav-logo{font-family:'Archivo','Arial Black',sans-serif;font-size:21px;font-weight:700;letter-spacing:0.02em;color:#ffffff;cursor:pointer;line-height:1.1;text-transform:uppercase}
+.nav-logo{font-family:'Archivo','Arial Black',sans-serif;font-size:26px;font-weight:700;letter-spacing:0.02em;color:#ffffff;cursor:pointer;line-height:1.1;text-transform:uppercase}
 .nav-logo span{color:#ffffff}
 .nav-links{display:flex;gap:2.5rem;align-items:center}
 .nav-links a{font-size:13px;letter-spacing:0.05em;color:var(--muted2);cursor:pointer;transition:color 0.2s;text-decoration:none;font-family:'Courier New',Courier,monospace;font-weight:400}
@@ -45,7 +45,7 @@ nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
 .hero{display:flex;flex-direction:column;padding-top:60px}
 .hero-tagline{padding:2.5rem 2rem 0;text-align:center}
 .hero-tagline-main{font-family:'Archivo','Arial Black',sans-serif;font-size:clamp(28px,4vw,64px);font-weight:700;color:#ffffff;letter-spacing:-0.02em;line-height:1.05}
-.hero-tagline-sub{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#c0392b;margin-top:1rem;font-weight:500}
+.hero-tagline-sub{font-size:13px;letter-spacing:0.05em;color:#c0392b;margin-top:1rem;font-family:'Courier New',Courier,monospace}
 .hero-divider{width:calc(100% - 4rem);margin:60px auto 0;height:2px;background:rgba(255,255,255,0.85);border-radius:1px}
 .hero-frame-wrap{width:100%;padding:1.5rem 2rem 0}
 .hero-frame{width:100%;aspect-ratio:2.39/1;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5);border-radius:25px}
@@ -107,7 +107,7 @@ nav.scrolled{background:rgba(8,8,8,0.96);border-bottom-color:var(--border)}
 /* REEL SECTION */
 .reel-section{background:var(--bg2);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);padding:6rem 3rem}
 .reel-inner{display:grid;grid-template-columns:1fr 1.2fr;gap:5rem;align-items:center}
-.reel-text h2{font-family:var(--display);font-size:clamp(32px,4vw,54px);font-weight:300;line-height:1.1;margin-bottom:1.5rem}
+.reel-text h2{font-family:'Archivo','Arial Black',sans-serif;font-size:clamp(32px,4vw,54px);font-weight:700;line-height:1.05;margin-bottom:1.5rem;letter-spacing:-0.02em}
 .reel-text h2 em{font-style:italic;color:var(--accent)}
 .reel-text p{font-size:13px;color:var(--muted2);line-height:1.9;margin-bottom:2rem;font-weight:300}
 .reel-specs{border-top:0.5px solid var(--border);padding-top:1.5rem;display:flex;flex-direction:column;gap:0}
@@ -332,7 +332,7 @@ footer .footer-links a:hover{color:var(--accent)}
   <div class="reel-section" id="reel-anchor">
     <div class="reel-inner">
       <div class="reel-text">
-        <h2>Demo<br><em>Reel</em> 2024</h2>
+        <h2>Demo<br><em>Reel</em></h2>
         <p>Showcasing VFX work across feature film, episodic, and commercial productions — simulations, USD lighting, look development, and pipeline tools in action.</p>
         <button class="btn-ghost">Request Full Reel</button>
         <div class="reel-specs">
@@ -579,6 +579,8 @@ const series = [
   { title:'House of the Dragon',                       season:'Season 3', year:2026, role:'CG Supervisor', tmdb_id:94997  },
   { title:'Stranger Things',                           season:'Season 4', year:2022, role:'FX Supervisor', tmdb_id:66732  },
   { title:'The Lord of the Rings: The Rings of Power', season:'Season 2', year:2024, role:'FX Supervisor', tmdb_id:84773  },
+  { title:"Jupiter's Legacy",                          season:'Season 1', year:2021, role:'FX Supervisor', tmdb_id:93484  },
+  { title:'Masters of the Air',                        season:'Season 1', year:2024, role:'FX Supervisor', tmdb_id:46518  },
 ];
 let seriesPosterCache = {};
 
