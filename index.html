@@ -686,11 +686,12 @@ function renderHomeGrid() {
   });
 }
 
-function getRandomItem(exclude) {
+function getRandomItem(excludeTitles) {
   const allItems = [
     ...films.map(f => ({ ...f, page: 'films', cache: posterCache })),
     ...series.map(s => ({ ...s, page: 'series', cache: seriesPosterCache }))
-  ].filter(item => item.cache[item.tmdb_id] && item.title !== exclude);
+  ].filter(item => item.cache[item.tmdb_id] && !excludeTitles.includes(item.title));
+  if (!allItems.length) return null;
   return allItems[Math.floor(Math.random() * allItems.length)];
 }
 
@@ -707,8 +708,9 @@ function startHomeCycle() {
     const delay = order.indexOf(i) * offset;
     const t = setTimeout(() => {
       function cycleCard() {
-        const currentTitle = card.querySelector('.film-name')?.textContent;
-        const item = getRandomItem(currentTitle);
+        const grid = document.getElementById('home-film-grid');
+        const visibleTitles = grid ? Array.from(grid.querySelectorAll('.film-name')).map(el => el.textContent) : [];
+        const item = getRandomItem(visibleTitles);
         if (!item) return;
         card.style.opacity = '0';
         setTimeout(() => {
