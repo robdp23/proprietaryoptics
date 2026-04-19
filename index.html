@@ -700,8 +700,10 @@ function startHomeCycle() {
   const grid = document.getElementById('home-film-grid');
   if (!grid) return;
   const cards = Array.from(grid.children);
+  const interval = 10000;
+  const stagger = interval / cards.length;
   cards.forEach((card, i) => {
-    const delay = i * 5000;
+    const delay = i * stagger;
     const timer = setInterval(() => {
       const currentTitle = card.querySelector('.film-name')?.textContent;
       const item = getRandomItem(currentTitle);
@@ -713,7 +715,7 @@ function startHomeCycle() {
         card.onclick = () => showPage(item.page);
         card.style.opacity = '1';
       }, 700);
-    }, 10000 + delay);
+    }, interval + delay);
     cardTimers.push(timer);
   });
 }
