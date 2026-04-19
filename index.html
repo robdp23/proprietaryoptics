@@ -555,7 +555,8 @@ function showPage(name) {
   window.scrollTo(0,0);
   if (name === 'films') renderFilmGrid();
   if (name === 'series') renderSeriesGrid();
-  if (name === 'home') renderHomeGrid();
+  if (name === 'home') { renderHomeGrid(); startHomeCycle(); }
+  else { if (homeCycleTimer) { clearInterval(homeCycleTimer); homeCycleTimer = null; } }
 }
 
 window.addEventListener('scroll', () => {
@@ -684,6 +685,21 @@ function renderHomeGrid() {
   });
 }
 
+let homeCycleTimer = null;
+function startHomeCycle() {
+  if (homeCycleTimer) clearInterval(homeCycleTimer);
+  homeCycleTimer = setInterval(() => {
+    const grid = document.getElementById('home-film-grid');
+    if (!grid) return;
+    grid.style.opacity = '0';
+    grid.style.transition = 'opacity 0.6s ease';
+    setTimeout(() => {
+      renderHomeGrid();
+      grid.style.opacity = '1';
+    }, 600);
+  }, 30000);
+}
+
 function editRole(e,i) {
   e.stopPropagation();
   const el = document.getElementById('role-'+i);
@@ -709,6 +725,7 @@ async function loadPosters() {
     renderFilmGrid();
   }));
   renderHomeGrid();
+  startHomeCycle();
   const ok = Object.values(posterCache).filter(v=>v!==null).length;
   setStatus(`${ok}/${films.length} posters loaded`, ok===films.length?'ok':'err');
 }
