@@ -566,9 +566,9 @@ window.addEventListener('scroll', () => {
 const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 const TMDB_KEY = '14f1f4545fa5a4385e6cf0638d324912';
 const series = [
-  { title:'House of the Dragon', season:'Season 3', year:2026, role:'CG Supervisor', tmdb_id:94997  },
+  { title:'House of the Dragon',                       season:'Season 3', year:2026, role:'CG Supervisor', tmdb_id:94997  },
+  { title:'Stranger Things',                           season:'Season 4', year:2022, role:'FX Supervisor', tmdb_id:66732  },
   { title:'The Lord of the Rings: The Rings of Power', season:'Season 2', year:2024, role:'FX Supervisor', tmdb_id:84773  },
-  { title:'Stranger Things',     season:'Season 4', year:2022, role:'FX Supervisor', tmdb_id:66732  },
 ];
 let seriesPosterCache = {};
 
@@ -605,12 +605,13 @@ async function loadSeriesPosters() {
       seriesPosterCache[s.tmdb_id] = d.poster_path || null;
     } catch { seriesPosterCache[s.tmdb_id] = null; }
     renderSeriesGrid();
+    renderHomeGrid();
   }));
 }
 const films = [
   { title:'Shelter',                              year:2023, role:'CG Supervisor',  tmdb_id:1290821 },
-  { title:"Now you See Me: Now You Don't",        year:2025, role:'CG Supervisor',  tmdb_id:425274 },
   { title:'Greenland 2',                          year:2025, role:'CG Supervisor',  tmdb_id:840464  },
+  { title:"Now You See Me: Now You Don't",        year:2025, role:'CG Supervisor',  tmdb_id:425274  },
   { title:'Venom: Let There Be Carnage',          year:2021, role:'FX Supervisor',  tmdb_id:580489  },
   { title:'Last Night in Soho',                   year:2021, role:'FX Supervisor',  tmdb_id:576845  },
   { title:'Dune: Part One',                       year:2021, role:'FX Supervisor',  tmdb_id:438631  },
@@ -668,18 +669,19 @@ function renderHomeGrid() {
   const grid = document.getElementById('home-film-grid');
   if (!grid) return;
   grid.innerHTML = '';
-  let count = 0;
-  for (let i = 0; i < films.length && count < 5; i++) {
-    const f = films[i];
-    const p = posterCache[f.tmdb_id];
-    if (!p) continue;
+  const allItems = [
+    ...films.map(f => ({ ...f, page: 'films', cache: posterCache })),
+    ...series.map(s => ({ ...s, page: 'series', cache: seriesPosterCache }))
+  ].filter(item => item.cache[item.tmdb_id]);
+  const shuffled = allItems.sort(() => Math.random() - 0.5).slice(0, 5);
+  shuffled.forEach(item => {
+    const p = item.cache[item.tmdb_id];
     const card = document.createElement('div');
     card.className = 'film-card';
-    card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${f.title}" loading="lazy" /><div class="film-info"><div class="film-name">${f.title}</div><div class="film-meta">${f.year}</div><div class="film-role-tag">${f.role}</div></div>`;
-    card.onclick = () => showPage('films');
+    card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${item.title}" loading="lazy" /><div class="film-info"><div class="film-name">${item.title}</div><div class="film-meta">${item.year}</div><div class="film-role-tag">${item.role}</div></div>`;
+    card.onclick = () => showPage(item.page);
     grid.appendChild(card);
-    count++;
-  }
+  });
 }
 
 function editRole(e,i) {
