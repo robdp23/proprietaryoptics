@@ -556,7 +556,7 @@ function showPage(name) {
   if (name === 'films') renderFilmGrid();
   if (name === 'series') renderSeriesGrid();
   if (name === 'home') { renderHomeGrid(); startHomeCycle(); }
-  else { if (homeCycleTimer) { clearInterval(homeCycleTimer); homeCycleTimer = null; } }
+  else { stopHomeCycle(); }
 }
 
 window.addEventListener('scroll', () => {
@@ -675,29 +675,52 @@ function renderHomeGrid() {
     ...series.map(s => ({ ...s, page: 'series', cache: seriesPosterCache }))
   ].filter(item => item.cache[item.tmdb_id]);
   const shuffled = allItems.sort(() => Math.random() - 0.5).slice(0, 5);
-  shuffled.forEach(item => {
+  shuffled.forEach((item, i) => {
     const p = item.cache[item.tmdb_id];
     const card = document.createElement('div');
     card.className = 'film-card';
+    card.style.transition = 'opacity 0.7s ease';
     card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${item.title}" loading="lazy" /><div class="film-info"><div class="film-name">${item.title}</div><div class="film-meta">${item.year}</div><div class="film-role-tag">${item.role}</div></div>`;
     card.onclick = () => showPage(item.page);
     grid.appendChild(card);
   });
 }
 
-let homeCycleTimer = null;
+function getRandomItem(exclude) {
+  const allItems = [
+    ...films.map(f => ({ ...f, page: 'films', cache: posterCache })),
+    ...series.map(s => ({ ...s, page: 'series', cache: seriesPosterCache }))
+  ].filter(item => item.cache[item.tmdb_id] && item.title !== exclude);
+  return allItems[Math.floor(Math.random() * allItems.length)];
+}
+
+let cardTimers = [];
 function startHomeCycle() {
-  if (homeCycleTimer) clearInterval(homeCycleTimer);
-  homeCycleTimer = setInterval(() => {
-    const grid = document.getElementById('home-film-grid');
-    if (!grid) return;
-    grid.style.opacity = '0';
-    grid.style.transition = 'opacity 0.6s ease';
-    setTimeout(() => {
-      renderHomeGrid();
-      grid.style.opacity = '1';
-    }, 600);
-  }, 30000);
+  stopHomeCycle();
+  const grid = document.getElementById('home-film-grid');
+  if (!grid) return;
+  const cards = Array.from(grid.children);
+  cards.forEach((card, i) => {
+    const delay = i * 5000;
+    const timer = setInterval(() => {
+      const currentTitle = card.querySelector('.film-name')?.textContent;
+      const item = getRandomItem(currentTitle);
+      if (!item) return;
+      card.style.opacity = '0';
+      setTimeout(() => {
+        const p = item.cache[item.tmdb_id];
+        card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${item.title}" loading="lazy" /><div class="film-info"><div class="film-name">${item.title}</div><div class="film-meta">${item.year}</div><div class="film-role-tag">${item.role}</div></div>`;
+        card.onclick = () => showPage(item.page);
+        card.style.opacity = '1';
+      }, 700);
+    }, 30000 + delay);
+    cardTimers.push(timer);
+  });
+}
+
+function stopHomeCycle() {
+  cardTimers.forEach(t => clearInterval(t));
+  cardTimers = [];
 }
 
 function editRole(e,i) {
