@@ -700,23 +700,29 @@ function startHomeCycle() {
   const grid = document.getElementById('home-film-grid');
   if (!grid) return;
   const cards = Array.from(grid.children);
-  const interval = 10000;
-  const stagger = interval / cards.length;
+  const interval = 10000;  // how often each card refreshes (ms)
+  const offset = 500;      // stagger between each card (ms) — tweak this
+  const order = cards.map((_,i) => i).sort(() => Math.random() - 0.5);
   cards.forEach((card, i) => {
-    const delay = i * stagger;
-    const timer = setInterval(() => {
-      const currentTitle = card.querySelector('.film-name')?.textContent;
-      const item = getRandomItem(currentTitle);
-      if (!item) return;
-      card.style.opacity = '0';
-      setTimeout(() => {
-        const p = item.cache[item.tmdb_id];
-        card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${item.title}" loading="lazy" /><div class="film-info"><div class="film-name">${item.title}</div><div class="film-meta">${item.year}</div><div class="film-role-tag">${item.role}</div></div>`;
-        card.onclick = () => showPage(item.page);
-        card.style.opacity = '1';
-      }, 700);
-    }, interval + delay);
-    cardTimers.push(timer);
+    const delay = order.indexOf(i) * offset;
+    const t = setTimeout(() => {
+      function cycleCard() {
+        const currentTitle = card.querySelector('.film-name')?.textContent;
+        const item = getRandomItem(currentTitle);
+        if (!item) return;
+        card.style.opacity = '0';
+        setTimeout(() => {
+          const p = item.cache[item.tmdb_id];
+          card.innerHTML = `<img src="${TMDB_IMG}${p}" alt="${item.title}" loading="lazy" /><div class="film-info"><div class="film-name">${item.title}</div><div class="film-meta">${item.year}</div><div class="film-role-tag">${item.role}</div></div>`;
+          card.onclick = () => showPage(item.page);
+          card.style.opacity = '1';
+        }, 700);
+      }
+      cycleCard();
+      const repeater = setInterval(cycleCard, interval);
+      cardTimers.push(repeater);
+    }, delay);
+    cardTimers.push(t);
   });
 }
 
