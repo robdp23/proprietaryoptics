@@ -23,6 +23,8 @@ function mountLot() {
   function reveal() {
     if (revealed) return;
     revealed = true;
+    var bar = $("veilBar");
+    if (bar) { bar.style.animation = "none"; bar.style.transform = "scaleX(1)"; }
     stage.classList.add("is-ready");
     var veil = $("veil");
     if (veil) veil.classList.add("is-gone");
@@ -406,8 +408,31 @@ function mountLot() {
   camera.position.z = 10;
 
   // 1. the plate. World units are map pixels, y flipped (world y = -map y).
-  var mapTex = new THREE.TextureLoader().load(MAP.src, reveal);
-  setTimeout(reveal, 7000);
+  var mapTex = new THREE.Texture();
+  function paintMap(image) {
+    mapTex.image = image;
+    mapTex.needsUpdate = true;
+    reveal();
+  }
+  var mapReq = new XMLHttpRequest();
+  mapReq.open("GET", MAP.src);
+  mapReq.responseType = "blob";
+  mapReq.onprogress = function (e) {
+    var bar = $("veilBar");
+    if (!bar || !e.lengthComputable || !e.total) return;
+    bar.style.animation = "none";
+    bar.style.transform = "scaleX(" + Math.max(0.04, Math.min(0.96, e.loaded / e.total)) + ")";
+  };
+  mapReq.onload = function () {
+    var img = new Image();
+    var url = URL.createObjectURL(mapReq.response);
+    img.onload = function () { URL.revokeObjectURL(url); paintMap(img); };
+    img.onerror = function () { URL.revokeObjectURL(url); reveal(); };
+    img.src = url;
+  };
+  mapReq.onerror = function () { new THREE.TextureLoader().load(MAP.src, function (tex) { paintMap(tex.image); }); };
+  mapReq.send();
+  setTimeout(reveal, 12000);
   mapTex.minFilter = THREE.LinearMipmapLinearFilter;      // mipmaps keep the larger plate clean when zoomed out
   mapTex.magFilter = THREE.LinearFilter;
   mapTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
