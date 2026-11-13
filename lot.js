@@ -619,14 +619,14 @@ function mountLot() {
     }
   });
   WALKING.forEach(function (pool, i) {
-    var a = dress(makeActor(spotAtNode(pool[i % pool.length]), 45 + Math.random() * 21), palette(i + 5));
-    a.pool = pool; a.wait = Math.random() * 3;
-    a.hx = a.ox = Math.random() * 10 - 5; a.hy = a.oy = Math.random() * 6 - 3;   // so extras do not walk in single file
+    var a = dress(makeActor(spotAtNode(pool[i % pool.length]), 52 + Math.random() * 18), palette(i + 5));
+    a.pool = pool; a.wait = Math.random() * 0.6;
+    a.hx = a.ox = Math.random() * 8 - 4; a.hy = a.oy = Math.random() * 4 - 2;
   });
   ROUTINES.forEach(function (loop, i) {
-    var a = dress(makeActor(spotAtNode(loop[0]), 48 + Math.random() * 14), palette(i + 11));
-    a.loop = loop; a.li = 0; a.wait = 2 + Math.random() * 3;
-    a.hx = a.ox = Math.random() * 10 - 5; a.hy = a.oy = Math.random() * 6 - 3;
+    var a = dress(makeActor(spotAtNode(loop[0]), 56 + Math.random() * 12), palette(i + 11));
+    a.loop = loop; a.li = 0; a.wait = Math.random() * 0.4;
+    a.hx = a.ox = Math.random() * 8 - 4; a.hy = a.oy = Math.random() * 4 - 2;
   });
   dress(hero, { skin: "#e2b48c", hair: "#3a2a1c", shirt: "#f2c230", pants: "#22262e", cap: "#22262e" });
   hero.k = 1.12; hero.mob = 0;                                                // the player is drawn a little larger than the crew
@@ -1352,7 +1352,7 @@ function mountLot() {
           var n = a.loop ? a.loop[a.li = (a.li + 1) % a.loop.length] : a.pool[Math.floor(Math.random() * a.pool.length)];
           var path = findPath(a, spotAtNode(n));
           if (path && pathLength(a, path) > 1) { a.path = path; a.moving = true; }
-          a.wait = 1 + Math.random() * 4;
+          a.wait = 0.4 + Math.random() * 1.2;
         }
       }
       if (!a.hold) moveActor(a, dt);
@@ -1363,17 +1363,8 @@ function mountLot() {
         var seq = [0, 1, 0, 3];
         col = seq[Math.floor(t * SPRITE.fps * Math.max(0.7, a.speed / 75) + a.phase) % 4];
       } else if (!calm) {
-        // Planted crew stay put, but they shift their weight, breathe and look around.
-        // A paused walker gets a smaller version of the same so a hold doesn't look frozen.
-        var weight = a.idle ? 1 : 0.45;
-        sway = Math.sin(t * 0.65 + a.phase * 4) * 6 * weight;
-        if (a.idle) {
-          col = ((t * 0.5 + a.phase) % 2.4) > 1.15 ? 2 : 0;
-          if (t > (a.lookAt || 0)) {
-            a.flip = -a.flip;
-            a.lookAt = t + 3.5 + Math.random() * 4.5;
-          }
-        } else col = ((t * 0.42 + a.phase) % 3.4) > 2.4 ? 2 : 0;
+        // A small weight shift only. Mirroring them in place read as a pivot, not a person.
+        sway = Math.sin(t * 0.7 + a.phase * 4) * (a.idle ? 1.6 : 0.8);
       }
       a.tex.offset.set(col / SPRITE.cols, a.row === 0 ? 1 - 1 / SPRITE.rows : 0);
       var x = a.x + a.ox + sway, y = a.y + a.oy;
