@@ -200,11 +200,6 @@ function mountLot() {
   var hero = makeActor(spotAtNode(HERO_START), 150);
   function travel(spot, done) {
     hero.onArrive = null;
-    if (calm) {
-      hero.x = spot.x; hero.y = spot.y; hero.a = spot.a; hero.b = spot.b; hero.path = [];
-      if (done) done();
-      return true;
-    }
     var path = findPath(hero, spot);
     if (!path) return false;
     var len = pathLength(hero, path);
