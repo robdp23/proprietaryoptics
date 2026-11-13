@@ -1366,12 +1366,16 @@ function mountLot() {
   var last = 0;
   function frame(ms) {
     if (!alive) return;
-    var t = ms / 1000, dt = Math.min(0.05, last ? t - last : 0);
+    // Some phones hand this callback a clock that never advances, which left every walker waiting forever.
+    var t = typeof ms === "number" && ms > 0 ? ms / 1000 : 0;
+    var dt = 1 / 60;
+    if (last && t > last) dt = Math.min(0.05, t - last);
+    else t = (last || 0) + dt;
     last = t;
 
     separate(dt);
     actors.forEach(function (a) {
-      if ((a.pool || a.loop) && !calm && !a.moving && !a.hold) {
+      if ((a.pool || a.loop) && !a.moving && !a.hold) {
         a.wait -= dt;
         if (a.wait <= 0) {
           var n = a.loop ? a.loop[a.li = (a.li + 1) % a.loop.length] : a.pool[Math.floor(Math.random() * a.pool.length)];
