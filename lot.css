@@ -465,6 +465,36 @@
   color: var(--paper);
 }
 
+.veil-wait {
+  margin: 22px 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.veil-track {
+  width: min(220px, 52vw);
+  height: 2px;
+  margin: 12px auto 0;
+  background: rgba(244, 241, 234, 0.16);
+  overflow: hidden;
+}
+
+#veilBar {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0.04);
+  transform-origin: left center;
+  background: var(--fg);
+  animation: veil-load 9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes veil-load {
+  to { transform: scaleX(0.9); }
+}
+
 #panel {
   flex: none;
   width: min(400px, 38%);
