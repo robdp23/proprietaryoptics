@@ -832,6 +832,123 @@ function mountLot() {
     lightBtn.textContent = lightMode === "auto" ? "Auto" : lightMode === "day" ? "Day" : "Night";
   });
 
+  // Ambient lot, off until asked. A generator, distant voices, an occasional pigeon.
+  // The stage roar is played from breathe(). sessionStorage keeps the choice for this visit.
+  var soundBtn = $("soundBtn"), soundOn = false, audio = null, master = null, soundArmed = false;
+  function noiseBuf(seconds, brown) {
+    var len = Math.floor(audio.sampleRate * seconds);
+    var buf = audio.createBuffer(1, len, audio.sampleRate), d = buf.getChannelData(0), last = 0, i, w;
+    for (i = 0; i < len; i++) {
+      w = Math.random() * 2 - 1;
+      if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.2; }
+      else d[i] = w;
+    }
+    return buf;
+  }
+  function murmurOnce() {
+    if (!soundOn || !audio) return;
+    var t = audio.currentTime, dur = 0.4 + Math.random() * 0.8;
+    var src = audio.createBufferSource();
+    src.buffer = noiseBuf(dur, false);
+    var bp = audio.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 260 + Math.random() * 520; bp.Q.value = 0.8;
+    var g = audio.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.03 + Math.random() * 0.02, t + dur * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t); src.stop(t + dur + 0.02);
+  }
+  function coo() {
+    if (!soundOn || !audio) return;
+    var t = audio.currentTime;
+    function note(when, a, b) {
+      var o = audio.createOscillator();
+      o.type = "sine";
+      o.frequency.setValueAtTime(a, when);
+      o.frequency.exponentialRampToValueAtTime(b, when + 0.16);
+      var g = audio.createGain();
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(0.045, when + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.2);
+      o.connect(g); g.connect(master);
+      o.start(when); o.stop(when + 0.22);
+    }
+    note(t, 620, 860);
+    note(t + 0.24, 740, 520);
+  }
+  function fireRoar() {
+    if (!soundOn || !audio) return;
+    var t = audio.currentTime, dur = Math.min(1.35, FIRE_LEN || 1.2);
+    var src = audio.createBufferSource();
+    src.buffer = noiseBuf(dur, true);
+    var bp = audio.createBiquadFilter();
+    bp.type = "bandpass"; bp.Q.value = 0.55;
+    bp.frequency.setValueAtTime(160, t);
+    bp.frequency.exponentialRampToValueAtTime(640, t + 0.22);
+    bp.frequency.exponentialRampToValueAtTime(120, t + dur);
+    var g = audio.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t); src.stop(t + dur + 0.02);
+  }
+  function startBed() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!audio) {
+      audio = new AC();
+      master = audio.createGain();
+      master.gain.value = 0.0001;
+      master.connect(audio.destination);
+      var hum = audio.createBufferSource();
+      hum.buffer = noiseBuf(2, true); hum.loop = true;
+      var low = audio.createBiquadFilter();
+      low.type = "lowpass"; low.frequency.value = 95;
+      var hg = audio.createGain(); hg.gain.value = 0.55;
+      var lfo = audio.createOscillator(); lfo.frequency.value = 0.06;
+      var lfoG = audio.createGain(); lfoG.gain.value = 0.12;
+      lfo.connect(lfoG); lfoG.connect(hg.gain);
+      hum.connect(low); low.connect(hg); hg.connect(master);
+      hum.start(); lfo.start();
+      (function loopMurmur() {
+        if (!alive) return;
+        setTimeout(loopMurmur, soundOn ? 1600 + Math.random() * 3800 : 700);
+        if (soundOn) murmurOnce();
+      })();
+      (function loopCoo() {
+        if (!alive) return;
+        setTimeout(loopCoo, soundOn ? 14000 + Math.random() * 16000 : 2000);
+        if (soundOn) coo();
+      })();
+    }
+    audio.resume();
+    var t = audio.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), t);
+    master.gain.linearRampToValueAtTime(0.2, t + 0.7);
+  }
+  function setSound(on) {
+    soundOn = !!on;
+    if (soundBtn) soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    try { sessionStorage.setItem("lot-sound", soundOn ? "1" : "0"); } catch (e) {}
+    if (soundOn) { startBed(); return; }
+    if (master && audio) {
+      var t = audio.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.linearRampToValueAtTime(0.0001, t + 0.3);
+      setTimeout(function () { if (!soundOn && audio) audio.suspend(); }, 320);
+    }
+  }
+  if (soundBtn) soundBtn.addEventListener("click", function () { setSound(!soundOn); });
+  try { if (sessionStorage.getItem("lot-sound") === "1" && soundBtn) {
+    soundOn = true; soundBtn.setAttribute("aria-pressed", "true");
+    var armSound = function () { if (soundArmed) return; soundArmed = true; if (soundOn) startBed(); };
+    window.addEventListener("pointerdown", armSound, { once: true });
+  } } catch (e) {}
+
   // --- sign and window glows: [zone, x, y, width, height, colour]. They idle low, brighten at night,
   //     and flare in sequence when the player arrives at their zone. ---
   var glows = [
@@ -1057,7 +1174,7 @@ function mountLot() {
   fireMesh.visible = false;
   scene.add(fireMesh);
   var fireGlow = glowMesh(0xff7a2d); fireGlow.scale.set(150, 90, 1);
-  function breathe() { fireT0 = now; fireUntil = now + FIRE_LEN; }
+  function breathe() { fireT0 = now; fireUntil = now + FIRE_LEN; fireRoar(); }
 
   // --- steam off the catering tables (and Mustang exhaust once the call sheet is complete) ---
   var STEAM = [[1050, 945], [1083, 927], [1095, 978], [935, 350]], EXHAUST = [678, 792];
@@ -1184,9 +1301,9 @@ function mountLot() {
     if (firing) {
       fireTex.offset.x = frame / FIRE_N;
       var ang = FIRE.angle;
-      var along = FW * 0.46;
-      if (frame > FIRE_PEAK) along += (FIRE_CX[FIRE_PEAK] - FIRE_CX[frame]) / 100 * FW;
-      fireMesh.position.set(FIRE.x + Math.cos(ang) * along, -(FIRE.y + Math.sin(ang) * along), 0.7);
+      var reach = FW * 0.46;
+      if (frame > FIRE_PEAK) reach += (FIRE_CX[FIRE_PEAK] - FIRE_CX[frame]) / 100 * FW;
+      fireMesh.position.set(FIRE.x + Math.cos(ang) * reach, -(FIRE.y + Math.sin(ang) * reach), 0.7);
       fireMesh.material.opacity = frame <= FIRE_PEAK ? 1 : 1 - (frame - FIRE_PEAK) / (FIRE_N - FIRE_PEAK);
       fireMesh.visible = true;
     } else { fireMesh.visible = false; fireMesh.material.opacity = 1; }
@@ -1474,6 +1591,7 @@ function mountLot() {
     tracked.forEach(function (t) {
       try { t[0].removeEventListener(t[1], t[2], t[3]); } catch (e) {}
     });
+    if (audio) { try { audio.close(); } catch (e) {} }
     if (rendererRef) {
       try { rendererRef.dispose(); rendererRef.forceContextLoss(); } catch (e) {}
     }
