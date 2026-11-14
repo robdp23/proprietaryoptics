@@ -1030,12 +1030,34 @@ function mountLot() {
     document.addEventListener("visibilitychange", function () { if (!document.hidden && video.paused) playReel(); });
   }
 
-  // --- creature stage fire. Stand-in particles; a rendered flipbook replaces this later. ---
+  // --- creature stage fire: the yoga-flame strip, played once each time the stage rolls ---
   var FIRE = { x: 371, y: 630, angle: Math.atan2(0.32, 1) };
-  var sparks = [], fireUntil = 0, fireColor = new THREE.Color();
-  for (var si = 0; si < 44; si++) sparks.push({ m: glowMesh(0xffb347), life: 1, max: 1, x: 0, y: 0, vx: 0, vy: 0 });
-  var fireGlow = glowMesh(0xff7a2d); fireGlow.position.set(415, -650, 0); fireGlow.scale.set(280, 180, 1);
-  function breathe(dur) { if (!calm) fireUntil = now + dur; }
+  var FIRE_N = 15, FW = 128, FH = 102, fireT0 = -1, fireUntil = 0;
+  // Content center of each frame, in cell pixels. Frames after the full bloom are
+  // drawn smaller toward the mouth, so those get shifted out to the bloom's center.
+  var FIRE_CX = [23, 30.1, 35.5, 42.7, 46.8, 50.9, 53.3, 52.9, 53, 53.3, 48.2, 36.4, 27.7, 20.1, 12];
+  var FIRE_PEAK = 9;
+  var FIRE_HOLD = [0.06, 0.07, 0.08, 0.09, 0.11, 0.13, 0.16, 0.20, 0.18, 0.14, 0.11, 0.09, 0.07, 0.06, 0.08];
+  var FIRE_GLOW = [0.15, 0.28, 0.42, 0.58, 0.74, 0.9, 1, 1, 1, 1, 0.7, 0.45, 0.25, 0.12, 0.04];
+  var FIRE_AT = [], FIRE_LEN = 0;
+  FIRE_HOLD.forEach(function (h) { FIRE_LEN += h; FIRE_AT.push(FIRE_LEN); });
+  function fireFrame(age) {
+    if (age < 0 || age >= FIRE_LEN) return -1;
+    for (var i = 0; i < FIRE_N; i++) if (age < FIRE_AT[i]) return i;
+    return FIRE_N - 1;
+  }
+  var fireTex = new THREE.TextureLoader().load(asset("/lot/fire.png"));
+  fireTex.magFilter = THREE.NearestFilter; fireTex.minFilter = THREE.NearestFilter; fireTex.generateMipmaps = false;
+  fireTex.wrapS = THREE.ClampToEdgeWrapping; fireTex.wrapT = THREE.ClampToEdgeWrapping;
+  fireTex.repeat.set(1 / FIRE_N, 1);
+  var fireMesh = new THREE.Mesh(quad, new THREE.MeshBasicMaterial({ map: fireTex, transparent: true, depthTest: false, side: THREE.DoubleSide }));
+  fireMesh.renderOrder = 8;
+  fireMesh.rotation.z = -FIRE.angle;
+  fireMesh.scale.set(FW, FH, 1);
+  fireMesh.visible = false;
+  scene.add(fireMesh);
+  var fireGlow = glowMesh(0xff7a2d); fireGlow.scale.set(150, 90, 1);
+  function breathe() { fireT0 = now; fireUntil = now + FIRE_LEN; }
 
   // --- steam off the catering tables (and Mustang exhaust once the call sheet is complete) ---
   var STEAM = [[1050, 945], [1083, 927], [1095, 978], [935, 350]], EXHAUST = [678, 792];
@@ -1096,7 +1118,7 @@ function mountLot() {
     glows.forEach(function (g) { if (g.zone === id) g.kick = now + (i++) * 0.16 + 0.01; });
     if (id === "tools") PIPES.forEach(function (p, k) { p.t0 = now + 0.3 + k * 0.28; });
     if (id === "credits") mqFast = now + 3.5;
-    if (id === "fx") breathe(1.6);
+    if (id === "fx") breathe();
     if (id === "reel") reelBoost = 1;
   }
 
@@ -1156,25 +1178,21 @@ function mountLot() {
     if (!reelLive) reelMat.opacity = 0.07 + 0.06 * Math.abs(Math.sin(t * 7.3) * Math.sin(t * 2.9)) + reelBoost * 0.35;
     else reelLit.material.opacity = Math.min(1, 0.55 * night + reelBoost * 0.3);
 
-    // fire
-    var firing = t < fireUntil, spawn = firing ? 2 : 0;
-    sparks.forEach(function (s) {
-      if (s.life >= s.max && spawn > 0) {
-        spawn--;
-        var ang = FIRE.angle + (Math.random() - 0.5) * 0.5, sp = 110 + Math.random() * 90;
-        s.x = FIRE.x; s.y = FIRE.y; s.vx = Math.cos(ang) * sp; s.vy = Math.sin(ang) * sp;
-        s.life = 0; s.max = 0.45 + Math.random() * 0.4;
-      }
-      if (s.life < s.max) {
-        s.life += dt; u = Math.min(1, s.life / s.max);
-        s.x += s.vx * dt; s.y += (s.vy - 30 * u) * dt;
-        s.m.position.set(s.x, -s.y, 0);
-        s.m.scale.set(8 + 36 * u, 8 + 36 * u, 1);
-        s.m.material.color.copy(fireColor.setHSL(0.13 - 0.11 * u, 1, 0.62 - 0.2 * u));
-        s.m.material.opacity = (1 - u) * 0.9;
-      } else s.m.material.opacity = 0;
-    });
-    fireGlow.material.opacity += ((firing ? 0.5 : 0) - fireGlow.material.opacity) * Math.min(1, dt * 8);
+    // fire: one pass through the strip, growing out of the mouth and burning down
+    var frame = fireT0 >= 0 ? fireFrame(t - fireT0) : -1;
+    var firing = frame >= 0;
+    if (firing) {
+      fireTex.offset.x = frame / FIRE_N;
+      var ang = FIRE.angle;
+      var along = FW * 0.46;
+      if (frame > FIRE_PEAK) along += (FIRE_CX[FIRE_PEAK] - FIRE_CX[frame]) / 100 * FW;
+      fireMesh.position.set(FIRE.x + Math.cos(ang) * along, -(FIRE.y + Math.sin(ang) * along), 0.7);
+      fireMesh.material.opacity = frame <= FIRE_PEAK ? 1 : 1 - (frame - FIRE_PEAK) / (FIRE_N - FIRE_PEAK);
+      fireMesh.visible = true;
+    } else { fireMesh.visible = false; fireMesh.material.opacity = 1; }
+    var peak = firing ? FIRE_GLOW[frame] : 0;
+    fireGlow.position.set(FIRE.x + 28, -(FIRE.y + 10), 0);
+    fireGlow.material.opacity += ((peak * 0.35) - fireGlow.material.opacity) * Math.min(1, dt * 8);
     var pu = postMat.uniforms;
     pu.uTime.value = t % 100;
     pu.uHeat.value += ((firing ? 1 : 0) - pu.uHeat.value) * Math.min(1, dt * 5);
@@ -1243,7 +1261,7 @@ function mountLot() {
         bubble(caller, "Quiet on set", 1.1, true);
         actors.forEach(function (a) { if ((a.pool || a.loop) && dist(a.x, a.y, STAGE.x, STAGE.y) < STAGE.r) a.hold = true; });
       } else if (take.phase === 1 && t >= take.t0 + 1.2) {
-        take.phase = 2; bubble(caller, "Action!", 1.2, true); breathe(1.9);
+        take.phase = 2; bubble(caller, "Action!", 1.2, true); breathe();
       } else if (take.phase === 2 && t >= take.t0 + 3.6) {
         take.phase = 0; take.next = t + 45 + Math.random() * 20;
         bubble(caller, "Cut!", 1.2, true);
