@@ -39,9 +39,8 @@ function mountLot() {
     // glow: the plate's lit windows and neon, pre-blurred, on black. Added over the map: faint by day, full at night.
     glow: asset("/lot/glow.jpg") };          // map image and its pixel size
 
-  // Sprite sheet layout every character uses. Row 0 walks toward camera facing right,
-  // row 1 walks away facing right; both are mirrored for left. Column 0 doubles as the idle pose.
-  var SPRITE = { cols: 4, rows: 2, cellW: 72, cellH: 100, feet: 96, scale: 0.5, fps: 8 };
+  // Higher-resolution side-view cast. Four walk frames, face and back, mirrored for left.
+  var SPRITE = { cols: 4, rows: 2, cellW: 72, cellH: 108, feet: 104, scale: 0.48, fps: 9 };
 
   // Walkable network in map pixels. Characters only ever move along these edges.
   var NODES = [
@@ -462,111 +461,99 @@ function mountLot() {
   function px(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
   function drawPerson(g, ox, oy, f, back, p) {
     var step = f === 1 ? 1 : f === 3 ? -1 : 0;
-    var lean = f === 2 ? 5 : 0;
-    var x = ox + 36;
-    var y = oy;
-    function rr(px, py, w, h, r) {
-      g.beginPath();
-      if (g.roundRect) g.roundRect(px, py, w, h, r);
-      else g.rect(px, py, w, h);
-      g.fill();
+    var x = ox + 36, hip = oy + 66;
+    function mix(hex, amt) {
+      var n = parseInt(hex.slice(1), 16);
+      var ch = function (c) { return Math.max(0, Math.min(255, Math.round(c + amt * 40))); };
+      return "rgb(" + ch((n >> 16) & 255) + "," + ch((n >> 8) & 255) + "," + ch(n & 255) + ")";
     }
-    function leg(px, len) {
-      g.fillStyle = p.pants;
-      rr(px, y + 64, 8, len, 2);
-      g.fillStyle = "rgba(0,0,0,.16)";
-      rr(px + 5, y + 64, 3, len, 1);
-      g.fillStyle = "#1a1614";
-      rr(px - 1, y + 64 + len - 1, 10, 5, 1.5);
-      g.fillStyle = "rgba(255,255,255,.22)";
-      rr(px, y + 64 + len - 1, 5, 2, 1);
+    function limb(x0, y0, x1, y1, w, col) {
+      g.strokeStyle = col; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round";
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
     }
-    var liftA = step > 0 ? 0 : step < 0 ? 6 : (lean ? 3 : 0);
-    var liftB = step < 0 ? 0 : step > 0 ? 6 : 0;
-    leg(x - 9 + lean, 28 - liftA);
-    leg(x + 1 + lean, 28 - liftB);
-
-    g.fillStyle = p.shirt;
-    var armA = step > 0 ? 5 : lean ? 1 : 0;
-    var armB = step < 0 ? 5 : 0;
-    rr(x - 18 + lean, y + 46, 7, 16 + armA, 3);
-    rr(x + 11 + lean, y + 46, 7, 16 + armB, 3);
-    g.fillStyle = "rgba(0,0,0,.12)";
-    rr(x - 18 + lean, y + 46, 3, 14 + armA, 2);
-    g.fillStyle = p.skin;
-    g.beginPath(); g.arc(x - 14.5 + lean, y + 63 + armA, 3.2, 0, 6.3); g.fill();
-    g.beginPath(); g.arc(x + 14.5 + lean, y + 63 + armB, 3.2, 0, 6.3); g.fill();
+    function shoe(sx, sy, dir) {
+      g.fillStyle = "#1c1916";
+      g.beginPath(); g.ellipse(sx + dir * 3, sy, 7, 3.2, 0, 0, 6.3); g.fill();
+      g.fillStyle = "rgba(255,255,255,.18)";
+      g.fillRect(sx - 2, sy - 1, 4, 1);
+    }
+    var front = step === 0 ? 4 : step * 10;
+    var backOff = step === 0 ? -3 : -step * 8;
+    limb(x - 2, hip, x + backOff, hip + 16, 5.5, mix(p.pants, -0.35));
+    limb(x + backOff, hip + 16, x + backOff - 2, hip + 34, 5, p.pants);
+    shoe(x + backOff - 2, hip + 36, step === 0 ? 1 : -step);
+    limb(x + 2, hip, x + front, hip + 15, 5.5, mix(p.pants, 0.15));
+    limb(x + front, hip + 15, x + front + 3, hip + 34, 5, mix(p.pants, 0.25));
+    shoe(x + front + 3, hip + 36, step === 0 ? 1 : step);
 
     g.fillStyle = p.shirt;
     g.beginPath();
-    g.moveTo(x - 13 + lean, y + 42);
-    g.lineTo(x + 13 + lean, y + 42);
-    g.quadraticCurveTo(x + 14 + lean, y + 56, x + 11 + lean, y + 70);
-    g.lineTo(x - 11 + lean, y + 70);
-    g.quadraticCurveTo(x - 14 + lean, y + 56, x - 13 + lean, y + 42);
+    g.moveTo(x - 13, oy + 42);
+    g.quadraticCurveTo(x - 15, oy + 58, x - 11, hip + 2);
+    g.lineTo(x + 12, hip + 2);
+    g.quadraticCurveTo(x + 16, oy + 58, x + 13, oy + 42);
+    g.quadraticCurveTo(x, oy + 46, x - 13, oy + 42);
     g.fill();
-    g.fillStyle = "rgba(0,0,0,.13)";
+    g.fillStyle = mix(p.shirt, -0.45);
     g.beginPath();
-    g.moveTo(x + 1 + lean, y + 42);
-    g.lineTo(x + 13 + lean, y + 42);
-    g.quadraticCurveTo(x + 14 + lean, y + 56, x + 11 + lean, y + 70);
-    g.lineTo(x + 1 + lean, y + 70);
+    g.moveTo(x + 1, oy + 44);
+    g.lineTo(x + 12, oy + 46);
+    g.quadraticCurveTo(x + 15, oy + 58, x + 11, hip + 1);
+    g.lineTo(x + 1, hip + 1);
     g.fill();
     if (p.vest) {
       g.fillStyle = p.vest;
-      rr(x - 8 + lean, y + 48, 16, 16, 2);
+      g.beginPath(); g.roundRect ? g.roundRect(x - 7, oy + 48, 14, 14, 2) : g.rect(x - 7, oy + 48, 14, 14);
+      g.fill();
     }
-    g.fillStyle = "#1c1916";
-    rr(x - 11 + lean, y + 67, 22, 3.5, 1);
+    g.fillStyle = mix(p.shirt, 0.4);
+    g.fillRect(x - 6, oy + 43, 12, 2.5);
+
+    var swing = step * 7;
+    limb(x - 11, oy + 48, x - 16, oy + 62 + swing, 4.2, mix(p.shirt, -0.2));
+    limb(x - 16, oy + 62 + swing, x - 14 - swing * 0.3, oy + 74, 3.4, p.skin);
+    limb(x + 11, oy + 48, x + 16, oy + 60 - swing, 4.2, p.shirt);
+    limb(x + 16, oy + 60 - swing, x + 15 + swing * 0.2, oy + 72, 3.4, p.skin);
 
     g.fillStyle = p.skin;
-    rr(x - 3.5 + lean, y + 36, 7, 8, 2);
-    g.beginPath(); g.arc(x + lean * 0.4, y + 26, 12.5, 0, 6.3); g.fill();
-    if (!back) {
-      g.beginPath(); g.arc(x + 11.5 + lean, y + 27, 2.6, 0, 6.3); g.fill();
-    }
+    g.fillRect(x - 3, oy + 36, 6, 7);
+    g.beginPath(); g.ellipse(x + 1, oy + 26, 11, 12, 0, 0, 6.3); g.fill();
+    g.fillStyle = "rgba(0,0,0,.08)";
+    g.beginPath(); g.ellipse(x + 6, oy + 28, 5, 10, 0, 0, 6.3); g.fill();
 
     g.fillStyle = p.hair;
     if (back) {
-      g.beginPath(); g.arc(x + lean * 0.4, y + 26, 12.6, 0, 6.3); g.fill();
+      g.beginPath(); g.ellipse(x + 1, oy + 25, 12, 13, 0, 0, 6.3); g.fill();
+      g.fillRect(x - 8, oy + 24, 6, 16);
     } else {
       g.beginPath();
-      g.arc(x + lean * 0.4, y + 24, 12.6, Math.PI * 0.98, Math.PI * 2.02, false);
+      g.ellipse(x, oy + 20, 12, 8, 0, Math.PI, 0, true);
       g.fill();
-      g.fillRect(x - 11 + lean * 0.4, y + 18, 22, 6);
+      g.fillRect(x - 11, oy + 16, 18, 6);
+      g.beginPath(); g.ellipse(x - 8, oy + 28, 3.2, 5, 0, 0, 6.3); g.fill();
       g.fillStyle = "#161311";
-      g.fillRect(x - 8 + lean, y + 24.5, 6, 1.2);
-      g.fillRect(x + 2 + lean, y + 24.5, 6, 1.2);
-      g.beginPath(); g.arc(x - 4.6 + lean, y + 28.2, 1.45, 0, 6.3); g.fill();
-      g.beginPath(); g.arc(x + 4.6 + lean, y + 28.2, 1.45, 0, 6.3); g.fill();
-      g.fillStyle = "#f4f1ea";
-      g.fillRect(x - 5.1 + lean, y + 27.5, 1.1, 1.1);
-      g.fillRect(x + 4.1 + lean, y + 27.5, 1.1, 1.1);
-      g.fillStyle = "rgba(80,42,32,.4)";
-      g.fillRect(x - 0.7 + lean, y + 29.6, 1.8, 2.6);
-      g.fillStyle = "rgba(110,48,48,.6)";
-      rr(x - 2.6 + lean, y + 33.4, 5.2, 1.3, 0.6);
+      g.beginPath(); g.ellipse(x + 4, oy + 26, 2.1, 1.5, 0, 0, 6.3); g.fill();
+      g.fillStyle = "#f7f4ec";
+      g.fillRect(x + 3.2, oy + 25.4, 1, 1);
+      g.fillStyle = "rgba(90,50,40,.55)";
+      g.fillRect(x + 1, oy + 29, 1.4, 3);
+      g.fillStyle = "rgba(140,70,70,.7)";
+      g.fillRect(x - 1, oy + 33.5, 4, 1.2);
       if (p.beard) {
         g.fillStyle = p.hair;
-        g.beginPath();
-        g.arc(x + lean, y + 35.5, 6.2, 0.2, Math.PI - 0.2);
-        g.fill();
+        g.beginPath(); g.ellipse(x + 2, oy + 34, 6, 4, 0, 0, Math.PI); g.fill();
       }
       if (p.glasses) {
-        g.strokeStyle = "#1a1612";
-        g.lineWidth = 1.1;
-        g.strokeRect(x - 8.4 + lean, y + 25.6, 7, 5);
-        g.strokeRect(x + 1.4 + lean, y + 25.6, 7, 5);
-        g.beginPath();
-        g.moveTo(x - 1.4 + lean, y + 28);
-        g.lineTo(x + 1.4 + lean, y + 28);
-        g.stroke();
+        g.strokeStyle = "#1a1612"; g.lineWidth = 1;
+        g.strokeRect(x - 1, oy + 23.5, 6.5, 4.5);
+        g.beginPath(); g.moveTo(x + 5.5, oy + 25.5); g.lineTo(x + 9, oy + 25); g.stroke();
       }
     }
     if (p.cap) {
       g.fillStyle = p.cap;
-      rr(x - 14 + lean * 0.3, y + 14, 28, 7, 2);
-      if (!back) rr(x + 6 + lean, y + 19, 14, 3.5, 1);
+      g.beginPath(); g.ellipse(x + 1, oy + 16, 12, 4.5, 0, Math.PI, 0); g.fill();
+      g.fillRect(x - 11, oy + 14, 22, 3);
+      if (!back) { g.beginPath(); g.ellipse(x + 14, oy + 17, 8, 2.2, 0, 0, 6.3); g.fill(); }
     }
   }
   function makeSheet(p) {
@@ -574,10 +561,10 @@ function mountLot() {
     var raw = document.createElement("canvas"); raw.width = W * SPRITE.cols; raw.height = H * SPRITE.rows;
     var g = raw.getContext("2d");
     for (var r = 0; r < SPRITE.rows; r++) for (var f = 0; f < SPRITE.cols; f++) drawPerson(g, f * W, r * H, f, r === 1, p);
-    // dark one-pixel outline so figures read against the busy plate
     var out = document.createElement("canvas"); out.width = raw.width; out.height = raw.height;
     var o = out.getContext("2d");
-    [[2,0],[-2,0],[0,2],[0,-2]].forEach(function (d) { o.drawImage(raw, d[0], d[1]); });
+    o.imageSmoothingEnabled = false;
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(function (d) { o.drawImage(raw, d[0], d[1]); });
     o.globalCompositeOperation = "source-in"; o.fillStyle = "#14161a"; o.fillRect(0, 0, out.width, out.height);
     o.globalCompositeOperation = "source-over"; o.drawImage(raw, 0, 0);
     return out;
