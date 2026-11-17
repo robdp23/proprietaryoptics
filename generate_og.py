@@ -62,7 +62,7 @@ except TypeError:
 # 7. Render Left-Hand Portfolio Branding & Accent Bars
 draw.rectangle([(60, 130), (68, 500)], fill="#00f0ff")
 draw.text((95, 135), "ROB PEARSON", fill="#ffffff", font=font_title)
-draw.text((95, 220), "CG Supervisor & Pipeline Lead", fill="#00f0ff", font=font_role)
+draw.text((95, 220), "CG / FX Supervisor", fill="#00f0ff", font=font_role)
 draw.text((95, 285), "Houdini  •  Nuke  •  Solaris  •  VFX", fill="#94a3b8", font=font_tags)
 
 # Interactive Badge & Domain
