@@ -52,34 +52,39 @@ function mountLot() {
     [340,24],[520,118],[668,196],                                                        // 25-27 alley behind the stage (extras only)
     [935,34],[1080,102],[1210,163],                                                      // 28-30 top street (extras only)
     [120,745],[225,805],                                                                 // 31-32 west lot (extras only)
-    [1075,1035],[1235,1055]                                                              // 33-34 car park (extras only)
+    [1075,1035],[1235,1055],                                                             // 33-34 car park (extras only)
+    [660,540],[780,540],[900,560],[1020,590],[1160,640],                                 // 35-39 through the Tools building, under the trucks
+    [704,1006],[712,1038],[720,1046],[768,1062],[776,1070],[784,1070],                   // 40-45 around the left of the trucks
+    [976,1014],[1160,1014],[1184,1030],[1368,1006],[1376,998],[1240,910],                 // 46-51 along the cars to the booth
+    [980,736],[1183,679],[1222,591],[1252,549],[1195,549],[859,352],[628,466],[583,459], // 52-59 drawn route
+    [628,561],[628,622],[516,695],[534,814],[492,888],[621,976],[701,956],[825,910],     // 60-67
+    [968,818],[974,740],[1069,795],[1109,860],[1157,858],[1216,909],[1254,897]           // 68-74
   ];
   var EDGES = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[6,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],
-    [15,16],[16,17],[17,18],[18,19],[19,20],[20,21],[21,22],[22,23],[15,24],
-    [25,26],[26,27],[28,29],[29,30],[31,32],[33,34]
+    [52,53],[53,54],[54,55],[55,56],[56,57],[57,58],[58,59],[59,60],[60,61],[61,62],[62,63],[63,64],[64,65],[65,66],[66,67],
+    [67,68],[68,69],[69,70],[70,71],[71,72],[72,73],[73,74],[69,52]
   ];
 
   // poly is in map pixels; node is where the character stands for that zone. Small zones first.
   var ZONES = [
-    { id: "mustang", toast: "The ’07 Mustang. Hood’s up, still waiting on a part.", node: 8,
+    { id: "mustang", toast: "The ’07 Mustang. Hood’s up, still waiting on a part.", node: 67,
       poly: [[672,775],[765,748],[832,800],[785,852],[690,822]] },
-    { id: "reel", label: "Demo reel", title: "Demo reel", node: 4,
+    { id: "reel", label: "Demo reel", title: "Demo reel", node: 64,
       poly: [[330,838],[392,728],[498,688],[522,812],[405,905],[335,885]], anchor: [452,930] },
-    { id: "resume", label: "Resume by request", title: "Resume by request", node: 23,
+    { id: "resume", label: "Contact", title: "Contact", node: 73,
       poly: [[1163,790],[1268,722],[1292,760],[1292,862],[1200,885],[1163,862]], anchor: [1250,950] },
-    { id: "tools", label: "Tools & R&D", title: "Tools and R&D", node: 11,
+    { id: "tools", label: "Tools & R&D", title: "Tools and R&D", node: 69,
       poly: [[695,445],[860,378],[1030,432],[1050,612],[872,782],[700,692]], anchor: [872,330] },
-    { id: "credits", label: "Film & TV", title: "Film and television", node: 16,
+    { id: "credits", label: "Film & TV", title: "Film and television", node: 55,
       poly: [[1150,215],[1290,165],[1395,330],[1385,545],[1300,585],[1172,470]], anchor: [1262,630] },
-    { id: "fx", label: "CG/FX Supervisor", nav: "About me", title: "About me", node: 0,
+    { id: "fx", label: "CG/FX Supervisor", nav: "About me", title: "About me", node: 60,
       poly: [[0,205],[250,75],[690,225],[690,560],[455,695],[345,765],[222,720],[215,640],[150,665],[0,590]], anchor: [330,300] }
   ];
   var NAV_ORDER = ["fx", "tools", "credits", "reel", "resume"];
-  var HERO_START = 8;
+  var HERO_START = 67;
 
   // Crew with a job: each walks back and forth between two nodes, pausing at both ends.
-  var ROUTINES = [[6,0],[8,11],[17,13]];
+  var ROUTINES = [[60,64],[52,55]];
   // Titles the theatre marquee cycles through.
   var TITLES = ["DUNE: PART ONE", "READY PLAYER ONE", "THE DARK KNIGHT RISES", "VENOM: LET THERE BE CARNAGE",
                 "HOUSE OF THE DRAGON", "STRANGER THINGS", "THE RINGS OF POWER", "MASTERS OF THE AIR",
@@ -93,15 +98,17 @@ function mountLot() {
   // Crew. standing: [x, y, facing away?, mirrored?]. walking: the nodes each extra wanders between.
   var STANDING = [
     [290,775,1,0],[255,792,1,1],[548,556,1,0],[520,1002,1,0],[150,880,0,0],[725,932,0,1],[838,846,1,1],
-    [1012,724,0,0],[1232,538,1,0],[1318,588,1,1],[1262,888,1,0],[1050,1022,1,0],[1138,992,1,1],
-    [318,785,1,0],[562,885,1,1],[600,575,0,1],[756,926,1,1],[858,862,1,1],[1040,712,0,1],[940,765,0,0],
+    [1232,538,1,0],[1318,588,1,1],[1262,888,1,0],[1050,1022,1,0],[1138,992,1,1],
+    [318,785,1,0],[562,885,1,1],[600,575,0,1],[756,926,1,1],[858,862,1,1],
     [1278,556,1,1],[1335,598,1,0],[1180,505,0,0],[1440,655,0,1],[1292,898,1,1],[1385,930,0,0],
     [1085,1034,0,1],[1180,1060,0,0],[190,770,0,0],[432,72,0,0],[1010,70,0,0]
   ];
   var WALKING = [
-    [0,1,2,3,4,5,6,7,8],[6,8,9,10,11,12],[4,5,6,7,8,9],[15,16,17,18,24],[13,14,15,24,17],
-    [20,21,22,23],[25,26,27],[28,29,30],[31,32],[33,34],
-    [0,1,2,3,4,5,6,7,8],[8,9,10,11,12,13],[15,16,17,18,24],[20,21,22,23],[2,3,4,5,6],[11,12,13,14,15,16]
+    [52,53,54,55,56],[56,57,58,59,60],[60,61,62,63,64],[64,65,66,67],
+    [67,68,69,70],[70,71,72,73,74],[52,53,54,55],[55,56,57,58],
+    [58,59,60,61,62],[62,63,64,65],[65,66,67,68],[68,69,70,71],
+    [71,72,73,74],[52,69,68,67],[60,59,58,57],[64,63,62,61],
+    [54,55,56,57,58],[61,62,63,64,65],[66,67,68,69],[72,73,74]
   ];
 
   /* ---------- dom ---------- */
@@ -114,6 +121,7 @@ function mountLot() {
   ZONES.forEach(function (z) { byId[z.id] = z; });
 
   var current = null, hovered = null, debug = false, toastTimer = 0, pending = 0;
+  var drawn = [];
 
   /* ---------- pathfinding on the walk network ---------- */
   function dist(ax, ay, bx, by) { return Math.sqrt((ax - bx) * (ax - bx) + (ay - by) * (ay - by)); }
@@ -133,7 +141,7 @@ function mountLot() {
     return best;
   }
   // A spot is {x, y, a, b}: at a node when a === b, otherwise somewhere on edge a-b.
-  function findPath(from, to) {
+  function findPath(from, to, crew) {
     var onSame = (to.a === from.a || to.a === from.b) && (to.b === from.a || to.b === from.b) ||
                  (from.a === to.a || from.a === to.b) && (from.b === to.a || from.b === to.b);
     if (onSame) return [to];
@@ -230,14 +238,6 @@ function mountLot() {
     focusOn(NODES[z.node][0], NODES[z.node][1]);
     visit(id);
   }
-  panelBody.addEventListener("submit", function (e) {
-    var form = e.target;
-    if (!form || form.id !== "resumeForm") return;
-    e.preventDefault();
-    var note = document.createElement("p");
-    note.textContent = "Request received. The resume goes out the same day.";
-    form.replaceWith(note);
-  });
   function closePanel() {
     if (!current) return;
     current = null;
@@ -339,9 +339,23 @@ function mountLot() {
     debug = on;
     debugBox.hidden = !on;
     dbgBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    nodeTags.forEach(function (el, i) { el.hidden = !on || !onRoute[i]; });
+    drawLine.material.opacity = on && drawn.length > 1 ? 1 : 0;
   }
   dbgBtn.addEventListener("click", function () { setDebug(!debug); });
-  $("ptsClear").addEventListener("click", function () { $("pts").value = ""; });
+  $("ptsClear").addEventListener("click", function () {
+    $("pts").value = "";
+    drawn.length = 0;
+    paintDrawn();
+  });
+  var copyBtn = $("ptsCopy");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    var text = $("pts").value;
+    $("pts").focus();
+    $("pts").select();
+    if (navigator.clipboard && text) navigator.clipboard.writeText(text);
+    copyBtn.textContent = text ? "Copied" : "Copy path";
+  });
 
   /* ---------- view (2D camera in map pixels) ---------- */
   var vw = 1, vh = 1, minZ = 1, maxZ = 4, sized = false;
@@ -456,6 +470,31 @@ function mountLot() {
     new THREE.LineBasicMaterial({ color: 0x49d6ea, transparent: true, opacity: 0, depthTest: false }));
   net.renderOrder = 2;
   scene.add(net);
+  var onRoute = {};
+  EDGES.forEach(function (e) { onRoute[e[0]] = onRoute[e[1]] = true; });
+  var nodeTags = NODES.map(function (p, i) {
+    var el = document.createElement("span");
+    el.className = "node-tag";
+    el.textContent = String(i);
+    el.hidden = true;
+    labels.appendChild(el);
+    return el;
+  });
+  var drawGeom = new THREE.BufferGeometry();
+  var drawLine = new THREE.Line(drawGeom, new THREE.LineBasicMaterial({ color: 0xffb020, transparent: true, opacity: 0, depthTest: false }));
+  drawLine.renderOrder = 6;
+  scene.add(drawLine);
+  function paintDrawn() {
+    if (drawn.length < 2) {
+      drawLine.material.opacity = 0;
+      return;
+    }
+    var arr = [];
+    drawn.forEach(function (p) { arr.push(p[0], -p[1], 0); });
+    drawGeom.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
+    drawGeom.computeBoundingSphere();
+    drawLine.material.opacity = debug ? 1 : 0;
+  }
 
   // 4. people. Placeholder sheets are drawn here; swap makeSheet() for your rendered sheets later.
   function px(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
@@ -610,28 +649,78 @@ function mountLot() {
     return actor;
   }
 
+  // Trucks and parked cars traced off the painting. People are not planted on them,
+  // and the same shapes are redrawn over anyone walking behind them.
+  var VEHICLES = [
+    [[[746,1031],[752,982],[773,968],[866,914],[883,911],[904,922],[909,931],[747,1037]], 1037],
+    [[[916,928],[953,913],[966,910],[967,943],[963,952],[958,963],[953,969],[917,930]], 969],
+    [[[1205,910],[1218,912],[1268,939],[1357,990],[1359,997],[1344,989],[1206,911]], 997],
+    [[[1197,963],[1205,957],[1220,950],[1231,951],[1239,955],[1247,961],[1216,977],[1197,964]], 977],
+    [[[819,1004],[831,987],[867,966],[881,959],[882,977],[862,998],[827,1012]], 1012],
+    [[[812,1034],[813,1031],[821,1024],[901,973],[912,971],[915,971],[914,988],[913,991],[813,1035]], 1035],
+    [[[928,1038],[949,1026],[980,1022],[999,1028],[1012,1041],[984,1065],[932,1041]], 1065],
+    [[[893,1069],[906,1058],[916,1052],[947,1070],[941,1082],[923,1099],[894,1071]], 1099],
+    [[[971,1104],[1015,1068],[1064,1063],[1078,1071],[1083,1077],[1052,1107],[1000,1134]], 1134],
+    [[[1119,1112],[1161,1074],[1182,1063],[1200,1064],[1224,1089],[1209,1103],[1148,1139]], 1139],
+    [[[1212,1146],[1292,1099],[1359,1062],[1353,1071],[1223,1145]], 1147],
+    [[[822,1092],[835,1083],[847,1079],[868,1083],[889,1096],[838,1104]], 1104],
+    [[[791,1123],[808,1110],[844,1118],[837,1133],[819,1144]], 1144]
+  ];
+  function insidePoly(poly, x, y) {
+    var c = false, i, j = poly.length - 1;
+    for (i = 0; i < poly.length; i++) {
+      var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi)) c = !c;
+      j = i;
+    }
+    return c;
+  }
+  function onVehicle(x, y) {
+    for (var i = 0; i < VEHICLES.length; i++) if (insidePoly(VEHICLES[i][0], x, y)) return true;
+    return false;
+  }
+  // [x0, y0, x1, y1] of the catering trailers, including the roof above the white body.
+  // A person overlaps one if their sprite (about 48px tall, 16px to either side) touches it.
+  var TRAILERS = [[720, 820, 940, 1070], [900, 790, 1140, 1040], [1200, 830, 1370, 950], [880, 680, 1120, 810], [1000, 620, 1200, 780], [1170, 560, 1280, 720]];
+  function onTrailer(x, y) {
+    var i, t;
+    for (i = 0; i < TRAILERS.length; i++) {
+      t = TRAILERS[i];
+      if (x + 16 > t[0] && x - 16 < t[2] && y > t[1] && y - 48 < t[3]) return true;
+    }
+    return false;
+  }
+  function planted(x, y) { return onVehicle(x, y) || onTrailer(x, y); }
+
   STANDING.forEach(function (s, i) {
+    if (planted(s[0], s[1])) return;
     var a = dress(makeActor({ x: s[0], y: s[1], a: 0, b: 0 }, 0), palette(i));
-    a.row = s[2]; a.flip = s[3] ? -1 : 1; a.mob = 0.3; a.idle = true;
+    a.row = s[2]; a.flip = s[3] ? -1 : 1; a.mob = 0.3; a.idle = true; a.turnAt = 3 + Math.random() * 8;
   });
   // A second shift of crew, mostly planted beside the paths so the lot reads as a working day.
   NODES.forEach(function (p, i) {
-    if (i === HERO_START) return;
+    if (i < 52) return;
     var side = (i % 2 ? 1 : -1) * (16 + (i % 3) * 6);
-    var a = dress(makeActor({ x: p[0] + side, y: p[1] + ((i % 5) - 2) * 4, a: 0, b: 0 }, 0), palette(40 + i));
-    a.row = i % 2; a.flip = side < 0 ? -1 : 1; a.mob = 0.22; a.idle = true;
+    var sx = p[0] + side, sy = p[1] + ((i % 5) - 2) * 4;
+    if (planted(sx, sy)) return;
+    var a = dress(makeActor({ x: sx, y: sy, a: 0, b: 0 }, 0), palette(40 + i));
+    a.row = i % 2; a.flip = side < 0 ? -1 : 1; a.mob = 0.22; a.idle = true; a.turnAt = 3 + Math.random() * 8;
     if (i % 2 === 0) {
-      var b = dress(makeActor({ x: p[0] - side * 0.55, y: p[1] + 13, a: 0, b: 0 }, 0), palette(80 + i));
-      b.row = (i + 1) % 2; b.flip = side > 0 ? -1 : 1; b.mob = 0.22; b.idle = true;
+      var bx = p[0] - side * 0.55, by = p[1] + 13;
+      if (!planted(bx, by)) {
+        var b = dress(makeActor({ x: bx, y: by, a: 0, b: 0 }, 0), palette(80 + i));
+        b.row = (i + 1) % 2; b.flip = side > 0 ? -1 : 1; b.mob = 0.22; b.idle = true; b.turnAt = 3 + Math.random() * 8;
+      }
     }
   });
+  function crewSpeed(base, spread) { return (base + Math.random() * spread) * (0.5 + Math.random() * 0.2); }
   WALKING.forEach(function (pool, i) {
-    var a = dress(makeActor(spotAtNode(pool[i % pool.length]), 52 + Math.random() * 18), palette(i + 5));
+    var a = dress(makeActor(spotAtNode(pool[i % pool.length]), crewSpeed(52, 18)), palette(i + 5));
     a.pool = pool; a.wait = Math.random() * 0.6;
     a.hx = a.ox = Math.random() * 8 - 4; a.hy = a.oy = Math.random() * 4 - 2;
   });
   ROUTINES.forEach(function (loop, i) {
-    var a = dress(makeActor(spotAtNode(loop[0]), 56 + Math.random() * 12), palette(i + 11));
+    var a = dress(makeActor(spotAtNode(loop[0]), crewSpeed(56, 12)), palette(i + 11));
     a.loop = loop; a.li = 0; a.wait = Math.random() * 0.4;
     a.hx = a.ox = Math.random() * 8 - 4; a.hy = a.oy = Math.random() * 4 - 2;
   });
@@ -739,6 +828,7 @@ function mountLot() {
   //     standing behind one is covered by it. [x, top y, base y] for each lamp post. ---
   var POSTS = [[1126, 598, 673], [879, 733, 812], [1103, 425, 483], [983, 115, 217], [1331, 688, 757], [1279, 985, 1098], [661, 1105, 1200], [461, 0, 96]];
   var plateMat = new THREE.MeshBasicMaterial({ map: mapTex, transparent: true, depthTest: false });
+  var masks = [];
   function cutout(pts, baseY) {
     var pos = [], uv = [], idx = [], i;
     for (i = 0; i < pts.length; i++) { pos.push(pts[i][0], -pts[i][1], 0); uv.push(pts[i][0] / MAP.w, 1 - pts[i][1] / MAP.h); }
@@ -752,6 +842,15 @@ function mountLot() {
     m.renderOrder = 4;                 // same layer as the people
     m.position.z = baseY * 0.001;      // and sorted against them by where it meets the ground
     scene.add(m);
+    var fill = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0xff3b6a, transparent: true, opacity: 0, depthTest: false, side: THREE.DoubleSide }));
+    fill.renderOrder = 8;
+    scene.add(fill);
+    var loop = new THREE.LineLoop(
+      new THREE.BufferGeometry().setFromPoints(pts.map(function (p) { return new THREE.Vector3(p[0], -p[1], 0); })),
+      new THREE.LineBasicMaterial({ color: 0xffc1ce, transparent: true, opacity: 0, depthTest: false }));
+    loop.renderOrder = 8.2;
+    scene.add(loop);
+    masks.push(fill, loop);
     return m;
   }
   POSTS.forEach(function (p) { cutout([[p[0] - 5, p[1]], [p[0] + 5, p[1]], [p[0] + 5, p[2] + 3], [p[0] - 5, p[2] + 3]], p[2]); });
@@ -760,13 +859,16 @@ function mountLot() {
   // that shape's front edge, so crew disappear behind a wall instead of walking on it.
   // The front edge sits just behind where someone stands at the door, so arrivals stay visible.
   [
-    [[[695, 445], [860, 378], [1030, 432], [1050, 612], [872, 720], [700, 640]], 700],   // tools
+    [[[695, 430], [860, 358], [1030, 416], [1050, 612], [872, 720], [700, 640]], 726],   // tools
+    [[[786, 375], [775, 379], [773, 393], [774, 402], [782, 411], [795, 409], [805, 396], [804, 381], [795, 376], [784, 375]], 726], // left dish
+    [[[887, 380], [899, 368], [894, 351], [880, 335], [865, 334], [858, 342], [858, 352], [868, 373], [884, 380]], 726], // right dish
     [[[1150, 215], [1290, 165], [1395, 330], [1385, 520], [1300, 545], [1172, 450]], 510], // theatre
     [[[266, 77], [392, 71], [687, 227], [687, 400], [264, 400]], 400],                    // stage, over the alley
     [[[330, 838], [392, 728], [498, 688], [522, 812], [405, 860], [335, 850]], 830],     // reel truck
     [[[672, 775], [765, 748], [832, 800], [785, 840], [690, 820]], 830],                 // mustang
     [[[1163, 790], [1268, 722], [1292, 760], [1292, 850], [1200, 870], [1163, 850]], 860] // resume booth
   ].forEach(function (o) { cutout(o[0], o[1]); });
+  VEHICLES.forEach(function (o) { cutout(o[0], o[1]); });
 
   // --- building covers: a slice of the plate redrawn above the people and the street-lamp light, so neither
   //     shows on a building that stands in front of them. Tinted each frame to match the time of day. ---
@@ -832,8 +934,25 @@ function mountLot() {
     }
     return buf;
   }
+  var genAt = [900, 540], eatAt = [1070, 950], stageAt = [371, 630];
+  var birdAt = [[668, 946], [1450, 662], [1392, 952]];
+  var genPlace = null, murmurPlace = null, stagePlace = null;
+  function proximity(at, near, far) {
+    var d = dist(hero.x, hero.y, at[0], at[1]);
+    if (d <= near) return 1;
+    if (d >= far) return 0;
+    var u = (d - near) / (far - near);
+    return (1 - u) * (1 - u);
+  }
+  function placeSound() {
+    if (!soundOn || !audio || !genPlace) return;
+    var t = audio.currentTime;
+    genPlace.gain.setTargetAtTime(0.08 + 0.92 * proximity(genAt, 140, 480), t, 0.18);
+    murmurPlace.gain.setTargetAtTime(proximity(eatAt, 70, 300), t, 0.18);
+    stagePlace.gain.setTargetAtTime(proximity(stageAt, 110, 380), t, 0.12);
+  }
   function murmurOnce() {
-    if (!soundOn || !audio) return;
+    if (!soundOn || !audio || !murmurPlace || proximity(eatAt, 70, 300) < 0.05) return;
     var t = audio.currentTime, dur = 0.4 + Math.random() * 0.8;
     var src = audio.createBufferSource();
     src.buffer = noiseBuf(dur, false);
@@ -843,12 +962,18 @@ function mountLot() {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(0.03 + Math.random() * 0.02, t + dur * 0.35);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(bp); bp.connect(g); g.connect(master);
+    src.connect(bp); bp.connect(g); g.connect(murmurPlace);
     src.start(t); src.stop(t + dur + 0.02);
   }
   function coo() {
     if (!soundOn || !audio) return;
-    var t = audio.currentTime;
+    var best = birdAt[0], i, h = proximity(best, 50, 240);
+    for (i = 1; i < birdAt.length; i++) {
+      var n = proximity(birdAt[i], 50, 240);
+      if (n > h) { h = n; best = birdAt[i]; }
+    }
+    if (h < 0.08) return;
+    var t = audio.currentTime, peak = 0.045 * h;
     function note(when, a, b) {
       var o = audio.createOscillator();
       o.type = "sine";
@@ -856,7 +981,7 @@ function mountLot() {
       o.frequency.exponentialRampToValueAtTime(b, when + 0.16);
       var g = audio.createGain();
       g.gain.setValueAtTime(0.0001, when);
-      g.gain.exponentialRampToValueAtTime(0.045, when + 0.03);
+      g.gain.exponentialRampToValueAtTime(peak, when + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, when + 0.2);
       o.connect(g); g.connect(master);
       o.start(when); o.stop(when + 0.22);
@@ -878,7 +1003,7 @@ function mountLot() {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(0.16, t + 0.1);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    src.connect(bp); bp.connect(g); g.connect(master);
+    src.connect(bp); bp.connect(g); g.connect(stagePlace);
     src.start(t); src.stop(t + dur + 0.02);
   }
   function startBed() {
@@ -889,6 +1014,11 @@ function mountLot() {
       master = audio.createGain();
       master.gain.value = 0.0001;
       master.connect(audio.destination);
+      var genPlaceNode = audio.createGain(); genPlaceNode.gain.value = 0.08;
+      var murmurNode = audio.createGain(); murmurNode.gain.value = 0;
+      var stageNode = audio.createGain(); stageNode.gain.value = 0;
+      genPlace = genPlaceNode; murmurPlace = murmurNode; stagePlace = stageNode;
+      genPlace.connect(master); murmurPlace.connect(master); stagePlace.connect(master);
       var hum = audio.createBufferSource();
       hum.buffer = noiseBuf(2, true); hum.loop = true;
       var low = audio.createBiquadFilter();
@@ -897,7 +1027,7 @@ function mountLot() {
       var lfo = audio.createOscillator(); lfo.frequency.value = 0.06;
       var lfoG = audio.createGain(); lfoG.gain.value = 0.12;
       lfo.connect(lfoG); lfoG.connect(hg.gain);
-      hum.connect(low); low.connect(hg); hg.connect(master);
+      hum.connect(low); low.connect(hg); hg.connect(genPlace);
       hum.start(); lfo.start();
       (function loopMurmur() {
         if (!alive) return;
@@ -1228,6 +1358,7 @@ function mountLot() {
 
   function fx(t, dt) {
     now = t;
+    placeSound();
     var i, u;
 
     // opening shot: ease in from the wide view unless the visitor takes over
@@ -1466,8 +1597,12 @@ function mountLot() {
 
   function click(p) {
     var m = screenToMap(p);
-    if (debug) {                       // in debug, clicks author points instead of moving the character
-      $("pts").value += "[" + Math.round(m.x) + "," + Math.round(m.y) + "],";
+    if (debug) {
+      var x = Math.round(m.x), y = Math.round(m.y);
+      drawn.push([x, y]);
+      $("pts").value += "[" + x + "," + y + "],";
+      if ($("ptsCopy")) $("ptsCopy").textContent = "Copy path";
+      paintDrawn();
       return;
     }
     var who = personAt(m);
@@ -1493,12 +1628,13 @@ function mountLot() {
     separate(dt);
     actors.forEach(function (a) {
       if ((a.pool || a.loop) && !a.moving && !a.hold) {
+        if (onTrailer(a.x, a.y)) a.wait = 0;
         a.wait -= dt;
         if (a.wait <= 0) {
           var n = a.loop ? a.loop[a.li = (a.li + 1) % a.loop.length] : a.pool[Math.floor(Math.random() * a.pool.length)];
-          var path = findPath(a, spotAtNode(n));
+          var path = findPath(a, spotAtNode(n), true);
           if (path && pathLength(a, path) > 1) { a.path = path; a.moving = true; }
-          a.wait = 0.4 + Math.random() * 1.2;
+          a.wait = onTrailer(a.x, a.y) ? 0.05 : 0.4 + Math.random() * 1.2;
         }
       }
       if (!a.hold) moveActor(a, dt);
@@ -1507,17 +1643,21 @@ function mountLot() {
       var sway = 0;
       if (!idle) {
         var seq = [0, 1, 0, 3];
-        col = seq[Math.floor(t * SPRITE.fps * Math.max(0.7, a.speed / 75) + a.phase) % 4];
+        col = seq[Math.floor(t * SPRITE.fps * Math.max(0.45, a.speed / 75) + a.phase) % 4];
+      } else if (!calm && a.idle) {
+        sway = Math.sin(t * 0.8 + a.phase * 4) * 0.8;
+        if (t > a.turnAt) {
+          if (Math.random() < 0.7) a.flip = -a.flip;
+          else a.row = a.row ? 0 : 1;
+          a.turnAt = t + 5 + Math.random() * 8;
+        }
       } else if (!calm) {
-        // A small weight shift only. Mirroring them in place read as a pivot, not a person.
-        sway = Math.sin(t * 0.7 + a.phase * 4) * (a.idle ? 1.6 : 0.8);
+        sway = Math.sin(t * 0.7 + a.phase * 4) * 0.6;
       }
       a.tex.offset.set(col / SPRITE.cols, a.row === 0 ? 1 - 1 / SPRITE.rows : 0);
       var x = a.x + a.ox + sway, y = a.y + a.oy;
-      var bob = idle && !calm ? Math.sin(t * 1.35 + a.phase * 2) * (a.idle ? 3.2 : 1.4) : 0;
-      var breath = idle && !calm ? 1 + Math.sin(t * 1.45 + a.phase) * (a.idle ? 0.032 : 0.016) : 1;
-      a.mesh.position.set(x, -y + LIFT * a.k + bob, y * 0.001);            // z by map y: lower on screen draws in front
-      a.mesh.scale.set(a.flip * SW * a.k, SH * a.k * breath, 1);
+      a.mesh.position.set(x, -y + LIFT * a.k, y * 0.001);            // z by map y: lower on screen draws in front
+      a.mesh.scale.set(a.flip * SW * a.k, SH * a.k, 1);
       a.shadow.position.set(x, -y, 0);
     });
     marker.position.set(hero.x, -hero.y + SH * hero.k * 0.92 + (calm ? 0 : Math.sin(t * 4) * 2.5), 5);
@@ -1552,6 +1692,18 @@ function mountLot() {
       }
     });
     net.material.opacity += ((debug ? 0.9 : 0) - net.material.opacity) * 0.25;
+    masks.forEach(function (m) {
+      m.material.opacity += ((debug ? (m.isLine ? 1 : 0.28) : 0) - m.material.opacity) * 0.25;
+    });
+    if (debug) {
+      for (var ni = 0; ni < NODES.length; ni++) {
+        nodeTags[ni].hidden = !onRoute[ni];
+        if (!onRoute[ni]) continue;
+        var nx = (NODES[ni][0] - view.cx) * view.z + vw / 2;
+        var ny = (NODES[ni][1] - view.cy) * view.z + vh / 2;
+        nodeTags[ni].style.transform = "translate(" + nx.toFixed(1) + "px," + ny.toFixed(1) + "px) translate(-50%,-50%)";
+      }
+    }
 
     fx(t, dt);
     renderer.setRenderTarget(rt);
