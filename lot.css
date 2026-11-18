@@ -419,12 +419,26 @@
 
 .debug button {
   margin-top: 6px;
+  margin-right: 6px;
   background: none;
   border: 1px solid var(--line);
+  color: var(--fg);
   border-radius: 999px;
   padding: 4px 8px;
   font-size: 12px;
 }
+.node-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font: 10px/1 ui-monospace, Menlo, Consolas, monospace;
+  color: #071014;
+  background: #49d6ea;
+  border-radius: 99px;
+  padding: 2px 4px;
+  pointer-events: none;
+}
+
 
 #veil {
   position: absolute;
@@ -636,67 +650,29 @@
   padding-left: 12px;
 }
 
-.resume-form {
+.contact-links {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 8px;
-}
-
-.resume-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--paper-dim);
-}
-
-.resume-form input,
-.resume-form textarea {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--ink);
-  border-radius: 0;
-  padding: 8px 0 10px;
-  outline: none;
-}
-
-.resume-form textarea {
-  min-height: 96px;
-  resize: vertical;
-}
-
-.resume-form input:focus,
-.resume-form textarea:focus {
-  border-bottom-color: var(--ink);
-}
-
-.resume-form button {
-  align-self: flex-start;
+  gap: 10px;
   margin-top: 4px;
+}
+
+.contact-links a {
+  display: inline-flex;
+  align-items: center;
   min-height: 40px;
   padding: 0 18px;
   background: var(--ink);
   color: var(--paper);
-  border: 0;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-decoration: none;
 }
 
-.resume-form + p {
-  margin-top: 8px;
+.contact-links a:hover {
+  background: #2a2824;
 }
 
 
